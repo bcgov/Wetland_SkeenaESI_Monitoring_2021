@@ -17,10 +17,15 @@ knitr::opts_chunk$set(
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # Wetland_SkeenaESI_Monitoring
-This repository presents 3 analysis; 1) Set of scripts that read in the Skeena East Environmental Stewardship Initiative's (ESI) Wetland Ecosystem Services Protocol (WESP) 2019 field cards, cleanup and summarize; 2) Generate a list of potential 2020 wetlands to sample, stratified based on groupings of Biogeoclimatic Ecosystem Classification (BEC) zones and selected to capture range of wetland flow characterizations, adjacent land type and disturbance; and 3) compiles Tier 1.5 wetland date, specifically indicators downloaded from Climate BC and landform position.
+This repository presents 4 groups of analysis/data processing scripts: 
+
+1) Set of scripts that read in the Skeena East Environmental Stewardship Initiative's (ESI) Wetland Ecosystem Services Protocol (WESP) 2019 and 2020 field cards, cleanup and summarize; 
+2) Generate a list of potential 2020 and 2021 wetlands to sample, stratified based on Nation Territory and groupings of Biogeoclimatic Ecosystem Classification (BEC) zones, and selected to capture range of wetland flow characteristics, adjacent land type and disturbance; 
+3) Read in 2021 WESP field cards from the file generated from the WESP Survey 123 form supplied by BC Wildlife Federation (BCWF); and 
+4) compiles Tier 1.5 wetland date, specifically indicators downloaded from Climate BC and landform position.
 
 ### Data
-Field data was collected in 2019 by Skeena East ESI crews. Paper forms were transferred onto excel spreadsheets.
+Field data was collected in 2019, 2020 and 2021 by Skeena East ESI field crews. Paper forms were transferred onto excel spreadsheets in 2019 and 2020. In 2021 a Survey 123 form was used on mobile devices uploaded to a BCWF server and then provided in an excel file for processing.
 
 Data on wetlands was collated by Jesse Fraser using provincial and regional inventory. Skeena-Stikine FLNRORD District office supplied an updated roads layer - available upon request.
 
@@ -32,18 +37,32 @@ Landform data from Adaptwest's landfacets https://adaptwest.databasin.org/pages/
 
 
 ### Usage
-There are three sets of scripts that are contained in the repo, they need to be run in order, note there is some duplication between sets*:
+There are four sets of scripts that are contained in the repo, they need to be run in order, note there is some duplication between sets*:
+
 
 Plot Data processing:
 
 - plot_01_load_2019.R
 - plot_02_clean_data.R
-- data is then passed to Wet_03_analysis_6_samplePrep.R
+- plot_01_load_2020.R
+- plot_02_clean_data_2020.R
+
+Clean field data is then passed to Wet_03_analysis_6_samplePrep.R
+
+- plot_01_load_2021.R - 2021 field data
+- plot_02_cleanFn_2021.R - functional assessment surveys
+- plot_02_cleanStressor_2021.R - wetland stressor surveys
+
 
 Sample selection:
 
+Load and clean base data:
+
 - Wet_01_load_spatial.R*
 - Wet_02_clean_1_spatial.R*
+
+Organize data used for site selection:
+
 - Wet_02_clean_2_spatial_AddWshds.R
 - Wet_02_clean_3_spatial_AddFREP.R
 - Wet_02_clean_4_spatial_AddCGL.R
@@ -52,6 +71,9 @@ Sample selection:
 - Wet_03_analysis_3_FlowStrata.R
 - Wet_03_analysis_4_LandTypeStrataN.R
 - Wet_03_analysis_5_DisturbanceStrataN.R
+
+Conduct site selection:
+
 - Wet_03_analysis_6_samplePrep.R
 - Wet_03_analysis_7_2019_ReportCard.R
 - Wet_03_analysis_8_sampleRequirements.R
@@ -60,6 +82,9 @@ Sample selection:
 - Wet_03_analysis_11_sample2020PickNewSite.R
 - Wet_03_analysis_12_2020SiteAdjust.R
 - Wet_03_analysis_13_sample2020RevisedSummary.R
+
+Output - variety of formats for participants:
+
 - Wet_04_output_1.R*
 - Wet_04_output_2.R
 
@@ -70,7 +95,6 @@ Tier 1.5 wetland data:
 - Tier1.5_03_analysis.R
 - Wet_04_output_1.R*
 
-*used for multipled tasks
 
 ### Project Status
 This project is part of Skeena East ESI a collaboration of Skeena First Nations and the Provincial Government.

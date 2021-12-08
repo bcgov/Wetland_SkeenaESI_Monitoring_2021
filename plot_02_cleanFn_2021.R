@@ -32,9 +32,9 @@ WForm1 <- WForm %>% mutate(
 )
 
 #Make list of variables that require parsing
-ParseVars<-c('F3','F56','F57','F58')
+ParseVars<-c('F3','F56','F57','F58','F61')
 #Number of sub-categories for each variable
-NparseVars<-c(8,3,7,9)
+NparseVars<-c(8,3,7,9,4)
 
 #Function to split a Form variable that has multiple entries into
 #separate variables
@@ -71,7 +71,7 @@ ParseVars<-c('F4','F5','F6','F7','F8','F9','F10','F11','F12','F13',
              'F36','F37','F38','F39','F40','F41', 'F43','F44','F47','F48',
              'F50','F51','F52','F53','F54','F55')
 #Number of sub-categories for each variable
-NparseVars<-c(3,5,5,5,3,4,4,5,4,5,
+NparseVars<-c(4,5,5,5,3,4,4,5,4,5,
               5,5,5,5,3,6,5,6,5,5,
               5,6,3,6,6,6,6,6,6,4,
               5,6,3,4,5,4,5,4,3,3,
@@ -88,27 +88,7 @@ WForm3 <- cbind(WForm2,(do.call(cbind, df4)))
 
 #Modify y/n to 1/0
 WForm4<-WForm3 %>%
-  mutate(across(c(F22,F23,F42,F49), ~ case_when(. == "yes" ~ "1", TRUE ~ "0")))
-#WriteXLS(WForm3,file.path(dataOutDir,paste('WForm3.xlsx',sep='')))
-
-WForm5<-WForm4 %>%
-  dplyr::select(Wetland_Co, Wetland_CoIn, Investigators, Date,
-                starts_with('F1_'),F2, starts_with('F2_'),F3, starts_with('F3_'),F4, starts_with('F4_'),
-                F5, starts_with('F5_'),F6, starts_with('F6_'),F7, starts_with('F7_'),F8, starts_with('F8_'),
-                F9, starts_with('F9_'),F10, starts_with('F10_'),F11, starts_with('F11_'),F12, starts_with('F12_'),
-                F13, starts_with('F13_'),F14, starts_with('F14_'),F15, starts_with('F15_'),F16, starts_with('F16_'),
-                F17, starts_with('F17_'),F18, starts_with('F18_'),F19, starts_with('F19_'),F20, starts_with('F20_'),
-                F21, starts_with('F21_'),F22, starts_with('F22_'),F23, starts_with('F23_'),F24, starts_with('F24_'),
-                F25, starts_with('F25_'),F26, starts_with('F26_'),F27, starts_with('F27_'),F28, starts_with('F28_'),
-                F29, starts_with('F29_'),F30, starts_with('F30_'),F31, starts_with('F31_'),F32, starts_with('F32_'),
-                F33, starts_with('F33_'),F34, starts_with('F34_'),F35, starts_with('F35_'),F36, starts_with('F36_'),
-                F37, starts_with('F37_'),F38, starts_with('F38_'),F39, starts_with('F39_'),F40, starts_with('F40_'),
-                F41, starts_with('F41_'),F42, starts_with('F42_'),F43, starts_with('F43_'),F44, starts_with('F44_'),
-                starts_with('F45_'), starts_with('F46_'),F47, starts_with('F47_'),F48, starts_with('F48_'),
-                F49,F50, starts_with('F50_'),F51, starts_with('F51_'),F52, starts_with('F52_'),
-                F53, starts_with('F53_'),F54, starts_with('F54_'),F55, starts_with('F55_'),F56, starts_with('F56_'),
-                F57, starts_with('F57_'),F58, starts_with('F58_'),F59, starts_with('F59_'),F60, starts_with('F60_'),
-                F61) %>%
+  mutate(across(c(F22,F23,F42,F49), ~ case_when(. == "yes" ~ "1", TRUE ~ "0"))) %>%
   mutate(across(everything(), as.character))
 
 #Column join 2020 with 2021
@@ -117,16 +97,40 @@ WManual2020T<-data.frame(t(WManual2020))
 #Get the column names from the first row then deletee row
 colnames(WManual2020T)=WManual2020T[c(1),]
 WManual2020T<-WManual2020T[-1,]
-#Set all types to character - same as WForm
+
+#Set Batch_ID and get Wetland_Co from Paul's SiteID_xtab file
 WManual2020T <- WManual2020T %>%
+  mutate(Batch_ID=parse_number(rownames(WManual2020T))) %>%
+  left_join(SiteID_xtab) %>%
   mutate(across(everything(), as.character))
-
-WriteXLS(WManual2020T,file.path(dataOutDir,paste('WManual2020T.xlsx',sep='')),AllText=TRUE)
-
+#WriteXLS(WManual2020T,file.path(dataOutDir,paste('WManual2020T.xlsx',sep='')),AllText=TRUE)
 
 #Join the data together and write as excel spreadsheet
-WetlandPlotData<-WManual2020T %>%
-  dplyr::bind_rows(WForm5)
+WForm5<-WManual2020T %>%
+  dplyr::bind_rows(WForm4)
+
+WetlandPlotData <- WForm5 %>%
+  dplyr::select(Batch_ID,
+              F1, starts_with('F1_'),F2, starts_with('F2_'),F3, starts_with('F3_'),F4, starts_with('F4_'),
+              F5, starts_with('F5_'),F6, starts_with('F6_'),F7, starts_with('F7_'),F8, starts_with('F8_'),
+              F9, starts_with('F9_'),F10, starts_with('F10_'),F11, starts_with('F11_'),F12, starts_with('F12_'),
+              F13, starts_with('F13_'),F14, starts_with('F14_'),F15, starts_with('F15_'),F16, starts_with('F16_'),
+              F17, starts_with('F17_'),F18, starts_with('F18_'),F19, starts_with('F19_'),F20, starts_with('F20_'),
+              F21, starts_with('F21_'),F22, starts_with('F22_'),F23, starts_with('F23_'),F24, starts_with('F24_'),
+              F25, starts_with('F25_'),F26, starts_with('F26_'),F27, starts_with('F27_'),F28, starts_with('F28_'),
+              F29, starts_with('F29_'),F30, starts_with('F30_'),F31, starts_with('F31_'),F32, starts_with('F32_'),
+              F33, starts_with('F33_'),F34, starts_with('F34_'),F35, starts_with('F35_'),F36, starts_with('F36_'),
+              F37, starts_with('F37_'),F38, starts_with('F38_'),F39, starts_with('F39_'),F40, starts_with('F40_'),
+              F41, starts_with('F41_'),F42, starts_with('F42_'),F43, starts_with('F43_'),F44, starts_with('F44_'),
+              F45,starts_with('F45_'), F46a, F46b,F47, starts_with('F47_'),F48, starts_with('F48_'),
+              F49,F50, starts_with('F50_'),F51, starts_with('F51_'),F52, starts_with('F52_'),
+              F53, starts_with('F53_'),F54, starts_with('F54_'),F55, starts_with('F55_'),F56, starts_with('F56_'),
+              F57, starts_with('F57_'),F58, starts_with('F58_'),F59, starts_with('F59_'),F60, starts_with('F60_'),
+              F61,starts_with('F61_'))
 
 WriteXLS(WetlandPlotData,file.path(dataOutDir,paste('WetlandPlotData.xlsx',sep='')),AllText=TRUE)
 
+SiteID_xtab2021<-WForm5 %>%
+  dplyr::select(Batch_ID, Wetland_Co)
+
+WriteXLS(SiteID_xtab2021,file.path(dataOutDir,paste('SiteID_xtab2021.xlsx',sep='')),AllText=TRUE)
