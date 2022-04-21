@@ -82,4 +82,6 @@ WetData<-list(WetPlotFnData1,WetPlotFnData2,WetStress)
 WetDataNames<-c('WetlandFunction1','WetlandFunction2','WetlandStressors')
 
 WriteXLS(WetData,file.path(dataOutDir,paste('WetPlots.xlsx',sep='')),SheetNames=WetDataNames)
-#Read by Wet_03_analysis_6_samplePrep.R
+#Read by Wet_03_analy
+
+sis_6_samplePrep.R

@@ -18,11 +18,13 @@ SiteID_xtab<-read_excel(file.path(WetMonDir,'WESPprocessing/SiteID_xtab.xlsx'),
                         col_names=c('Wetland_Co','Batch_ID'))
 Batch_ID_max<-max(SiteID_xtab$Batch_ID)
 
-#Read sampling spreadsheet sheets from WESP-BC_2021_Field_Results_Data_12Oct21.xslx form from WBCWF.
-WetPlotFnSheets<- excel_sheets(file.path(WetMonDir,'2021FieldData/BCWF_DataDump/ESI export 11.24 WESP.xlsx'))
+#Read sampling spreadsheet sheets from WESP-BC_2021_Field_Results_Data_12Oct21.xslx form from BCWF.
+#BCWFfile<-'ESI export 11.24 WESP.xlsx'
+BCWFfile<-'WESP_06_24_0_ export02.23.xlsx'
+WetPlotFnSheets<- excel_sheets(file.path(WetMonDir,paste0('2021FieldData/BCWF_DataDump/',BCWFfile)))
 
-WetPlotFnDataIn<-read_excel(file.path(WetMonDir,'2021FieldData/BCWF_DataDump/ESI export 11.24 WESP.xlsx'),
-                            sheet = WetPlotFnSheets[1], skip=1,
+WetPlotFnDataIn<-read_excel(file.path(WetMonDir,paste0('2021FieldData/BCWF_DataDump/',BCWFfile)),
+                            sheet = WetPlotFnSheets[1], #skip=1,
                             col_names=TRUE, col_types=c('text'))
 #Filter the data for ESI sites
 unique(WetPlotFnDataIn$Investigators)
@@ -32,9 +34,10 @@ WFormIn <- WetPlotFnDataIn %>%
                   (grepl(('ESI|Esi|Wit|Witset|Smithers'), Wetland_Co))) %>%
   dplyr::select(-c(ObjectID,GlobalID,Region,DateIn,
                    CreationDate,Creator,EditDate,Editor,x,y))
+
 #Fix Wetland_Co field and add Batch_ID field
 #strings to replace with null characters or with Training designation
-wetFix<-c("ESI-","ESi-","ESi ","ESI","GES","GES ","GES#","training ")
+wetFix<-c("ESI-","ESI_","ESi-","ESi ","ESI","GES","GES ","GES#","training ")
 wetTrain<-data.frame(Wetc=c('ESI-8804','ESi-8804','ESi training 35800','ESI-35800'),
                      NewWet=c('8804','8804Train','35800Train','35800'))
 WForm<- WFormIn %>%
@@ -42,11 +45,19 @@ WForm<- WFormIn %>%
   mutate(Wetland_Co=str_squish(mgsub::mgsub(Wetland_Co, wetTrain$Wetc, wetTrain$NewWet))) %>%
   mutate(Wetland_Co=str_squish(mgsub::mgsub(Wetland_Co, wetFix, replicate(length(wetFix),"")))) %>%
   mutate(Wetland_Co=ifelse(Wetland_Co=="Torkelson wetland (frep Smithers district)", 54255, Wetland_Co)) %>%
-  mutate(Batch_IDc=paste0('data_',Batch_ID_max+row_number()))%>%
-  mutate(Batch_ID=Batch_ID_max+row_number()) %>%
+  mutate(Wetland_Co=ifelse(Wetland_Co=="Wit_002", 8792, Wetland_Co)) %>%
+  mutate(Wetland_Co=ifelse(Wetland_Co=="Wit_003_duckbill", 8702, Wetland_Co)) %>%
+  mutate(Wetland_Co=ifelse(Wetland_Co=="Wit001", 8769, Wetland_Co)) %>%
+  mutate(Wetland_Co=ifelse(Wetland_Co=="Witset_wesp_seaton", 39847, Wetland_Co)) %>%
+  mutate(Wetland_Co=ifelse(Wetland_Co=="Witset_wetlandblunt01", 39591, Wetland_Co))  %>%
   dplyr::filter(!(Wetland_Co=='33240' & Investigators=='WFN'),
                 !(Wetland_Co=='8804Train' & Investigators=='Training'),
-                !(Wetland_Co=='35800Train' & Investigators=='Witset'))
+                !(Wetland_Co=='35800Train' & Investigators=='Witset')) %>%
+  mutate(Batch_IDc=paste0('data_',Batch_ID_max+row_number()))%>%
+  mutate(Batch_ID=Batch_ID_max+row_number())
+
+WFcheck<-WForm %>%
+  dplyr::select(Wetland_CoIn, Wetland_Co, Batch_IDc, Batch_ID)
 
 #Read spreadsheet sheets from BC_BatchCalculator_8April_Fixed+AllData_unformatted_01Dec2021.xlsm
 #This spreadsheet has been updated by Paul, a 'Questions' column has been added
